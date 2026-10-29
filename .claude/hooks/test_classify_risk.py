@@ -68,7 +68,9 @@ class HookContractTest(unittest.TestCase):
         for payload in ["not json", "[]", {"changed_files": "README.md"},
                         {"changed_files": [1]}, {}]:
             with self.subTest(payload=payload):
-                self.assertEqual(run_hook(payload).returncode, 2)
+                r = run_hook(payload)
+                self.assertEqual(r.returncode, 2)
+                self.assertIn("classifier error", r.stderr)
 
     def test_repo_config_extends_allowlist(self):
         with tempfile.TemporaryDirectory() as root:
@@ -89,6 +91,7 @@ class HookContractTest(unittest.TestCase):
                 (Path(root) / ".factory/risk.json").write_text(content)
                 r = run_hook({"changed_files": ["README.md"], "repo_root": root})
                 self.assertEqual(r.returncode, 2)
+                self.assertIn("classifier error", r.stderr)
 
 
 if __name__ == "__main__":
