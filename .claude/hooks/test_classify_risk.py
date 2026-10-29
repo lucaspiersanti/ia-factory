@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from classify_risk import classify
+from classify_risk import classify, parse_extra
 
 HOOK = Path(__file__).with_name("classify_risk.py")
 
@@ -46,6 +46,13 @@ class ClassifyTest(unittest.TestCase):
                   ".github//ci.md", "docs/./a.md"]:
             with self.subTest(f=f):
                 self.assertEqual(classify([f])[0], "slow")
+
+    def test_parse_extra_validates_text(self):
+        self.assertEqual(parse_extra('{"allowlist": ["a/*"]}'), ["a/*"])
+        self.assertEqual(parse_extra("{}"), [])
+        for text in ["{oops", "[]", '{"allowlist": "*"}', '{"allowlist": [1]}']:
+            with self.subTest(text=text), self.assertRaises(Exception):
+                parse_extra(text)
 
     def test_repo_allowlist_extends_default(self):
         self.assertEqual(classify(["assets/logo.svg"])[0], "slow")

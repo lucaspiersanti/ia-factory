@@ -66,14 +66,20 @@ def _string_list(value, field):
     return value
 
 
-def _load_extra(repo_root):
+def parse_extra(text):
+    data = json.loads(text)
+    if not isinstance(data, dict):
+        raise ValueError(f"{REPO_CONFIG} must be a JSON object")
+    return _string_list(data.get("allowlist", []), "allowlist")
+
+
+def load_extra(repo_root):
     if repo_root is None:
         return []
     config = Path(repo_root) / REPO_CONFIG
     if not config.exists():
         return []
-    data = json.loads(config.read_text())
-    return _string_list(data.get("allowlist", []), "allowlist")
+    return parse_extra(config.read_text())
 
 
 def main():
@@ -82,7 +88,7 @@ def main():
         if not isinstance(payload, dict):
             raise ValueError("input must be a JSON object")
         files = _string_list(payload.get("changed_files"), "changed_files")
-        path, reason = classify(files, _load_extra(payload.get("repo_root")))
+        path, reason = classify(files, load_extra(payload.get("repo_root")))
     except Exception as e:  # fail closed on anything unexpected
         path, reason = "slow", f"classifier error: {e}"
     print(path)
