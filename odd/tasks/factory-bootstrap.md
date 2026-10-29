@@ -27,7 +27,9 @@ Development should not depend on a human as the bottleneck. The human approves e
 | 2 | `feat/hooks-trigger-rounds` | T3 | a71df38 | ~283 |
 | 3 | `feat/hooks-builder-guard` | T4 | see Progress | ~250 |
 
-No git remote yet: pushing and opening PRs are the user's decision.
+PRs opened 2026-10-29 at the user's request: slice 1 = #1 (base `main`), slice 2 = #2 (base slice 1), slice 3 = #3 (base slice 2). After a parent merges, retarget the child to `main`.
+
+Known `guard_git` false positive: a Bash command that contains "git" plus a heredoc with unbalanced quotes (e.g. an apostrophe) cannot be parsed and is blocked. Write such content with a file tool, then run the git/gh command on its own.
 
 ## Checklist
 - [x] T1 Skeleton: `git init`, feature branch, `.gitignore`, this document. Route: inline (mechanical). Check: structural readback. Commit: see Progress.
