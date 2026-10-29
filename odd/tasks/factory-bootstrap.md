@@ -35,7 +35,7 @@ No git remote yet: pushing and opening PRs are the user's decision.
 - [x] T3 Trigger validation (Stage A) + correction-round counter (Stage E), with tests. Route: inline (two small hooks, design fixed by ADR-002). Check: `python3 -m unittest discover -s .claude/hooks` → 30 tests OK. RED observed (missing modules; unhashable list/dict values crashing `validate`), then GREEN.
 - [x] T4 Builder guards (Stage C): `guard_git.py` PreToolUse hook on Bash, registered in `.claude/settings.json`. Route: inline (one hook + test + settings). Check: `python3 -m unittest discover -s .claude/hooks` → 40 tests OK; RED observed (39 failing subtests); live check in Claude Code: `git push origin main` blocked by the hook.
 - [ ] T5 Stage A–F subagents and skills + end-to-end dry run with a sample trigger JSON. Target repos are cloned into `workspaces/` (ADR-004).
-- [ ] T6 GitHub branch protection on `main` (ia-factory repo, then every target repo): require PR, block force push and deletion. Blocked: ia-factory has no GitHub remote yet; creating it needs the user's choice of owner and visibility.
+- [x] T6 GitHub branch protection on `main` for ia-factory: public repo `lucaspiersanti/ia-factory` (user chose public: Free plan only protects public repos), default branch `main`, PR required with 0 approvals (a solo owner cannot approve their own PR; Stage F auto-merge goes through a PR), `enforce_admins` on, force push and deletion off. The user pushed `main` themselves because `guard_git` blocks the agent. Check: protection read back from the GitHub API. Every target repo must get the same protection when it is onboarded (part of T5).
 
 ## Acceptance criteria
 - Every hook has a `unittest` file next to it and all tests pass.
