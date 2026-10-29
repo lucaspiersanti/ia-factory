@@ -23,7 +23,7 @@ Development should not depend on a human as the bottleneck. The human approves e
 
 ## Checklist
 - [x] T1 Skeleton: `git init`, feature branch, `.gitignore`, this document. Route: inline (mechanical). Check: structural readback. Commit: see Progress.
-- [ ] T2 `classify_risk.py` with TDD (Stage F). Route: inline or delegated writer. Check: `python3 -m unittest discover -s .claude/hooks`.
+- [x] T2 `classify_risk.py` with TDD (Stage F). Route: inline (one hook + its test, design already fixed by ADR-003). Check: `python3 -m unittest discover -s .claude/hooks` → 13 tests OK. RED observed twice (missing module; non-normalized path bypass), then GREEN.
 - [ ] T3 Trigger validation (Stage A) + correction-round counter (Stage E), with tests.
 - [ ] T4 Builder guards (Stage C): block push to `main` and writes outside the work branch.
 - [ ] T5 Stage A–F subagents and skills + end-to-end dry run with a sample trigger JSON.
@@ -36,5 +36,7 @@ Development should not depend on a human as the bottleneck. The human approves e
 ## Progress
 - T1 done 2026-10-29. Directories under `.claude/` are created by the tasks that put files in them (no empty scaffolding).
 
+- T2 done 2026-10-29. Contract: stdin `{"changed_files": [...], "repo_root"?}`, stdout `fast|slow`, exit 0 = fast, exit 2 = slow. Repo allowlist extension lives in `<repo>/.factory/risk.json` (`{"allowlist": [globs]}`); `.factory/` itself is protected so a PR cannot widen its own allowlist and self-merge. Callers must pass `git diff --name-only --no-renames`.
+
 ## Next step
-T2: write failing tests for `classify_risk.py`.
+T3: trigger validation (Stage A) + correction-round counter (Stage E).
