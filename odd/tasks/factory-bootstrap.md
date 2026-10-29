@@ -24,7 +24,8 @@ Development should not depend on a human as the bottleneck. The human approves e
 | Slice | Branch | Tasks | Commits | Lines |
 |---|---|---|---|---|
 | 1 | `feat/hooks-risk-classifier` | T1, T2 | bd29bf9, 01cf5fa | ~240 |
-| 2 | `feat/hooks-trigger-rounds` | T3 | see Progress | ~270 |
+| 2 | `feat/hooks-trigger-rounds` | T3 | a71df38 | ~283 |
+| 3 | `feat/hooks-builder-guard` | T4 | see Progress | ~250 |
 
 No git remote yet: pushing and opening PRs are the user's decision.
 
@@ -32,7 +33,7 @@ No git remote yet: pushing and opening PRs are the user's decision.
 - [x] T1 Skeleton: `git init`, feature branch, `.gitignore`, this document. Route: inline (mechanical). Check: structural readback. Commit: see Progress.
 - [x] T2 `classify_risk.py` with TDD (Stage F). Route: inline (one hook + its test, design already fixed by ADR-003). Check: `python3 -m unittest discover -s .claude/hooks` → 13 tests OK. RED observed twice (missing module; non-normalized path bypass), then GREEN.
 - [x] T3 Trigger validation (Stage A) + correction-round counter (Stage E), with tests. Route: inline (two small hooks, design fixed by ADR-002). Check: `python3 -m unittest discover -s .claude/hooks` → 30 tests OK. RED observed (missing modules; unhashable list/dict values crashing `validate`), then GREEN.
-- [ ] T4 Builder guards (Stage C): block push to `main` and writes outside the work branch.
+- [x] T4 Builder guards (Stage C): `guard_git.py` PreToolUse hook on Bash, registered in `.claude/settings.json`. Route: inline (one hook + test + settings). Check: `python3 -m unittest discover -s .claude/hooks` → 40 tests OK; RED observed (39 failing subtests); live check in Claude Code: `git push origin main` blocked by the hook.
 - [ ] T5 Stage A–F subagents and skills + end-to-end dry run with a sample trigger JSON.
 
 ## Acceptance criteria
@@ -47,5 +48,7 @@ No git remote yet: pushing and opening PRs are the user's decision.
 
 - T3 done 2026-10-29 on slice 2. `validate_trigger.py`: strict schema, `origen` in sentry|github|slack, `prioridad` in low|medium|high|critical (agent default, user may change), safe `id_tarea` charset (used as branch and state file name). `correction_rounds.py`: stdin `{"id_tarea", "state_dir"}`, grants round 1 and 2, then exit 2 "escalate to human"; corrupt/tampered counter escalates. Negative hook tests assert our own stderr message, because a missing or crashing hook also exits 2.
 
+- T4 done 2026-10-29 on slice 3. Blocks: push to main/master (explicit, `HEAD:main`, `:main`, `--delete`, implicit from main), force/`+refspec`/`--all`/`--mirror`, and commit/merge/rebase/cherry-pick/revert/am on main/master or an unknown branch. Understands `cd x &&` and `git -C x`. Known limit: `sh -c`/`eval`/scripts bypass it; GitHub branch protection on `main` is the real enforcement. Open point for T5: these hooks fire only when Claude Code runs with ia-factory as project; the Builder working in a target repo clone needs them installed there too.
+
 ## Next step
-T4: builder guards (Stage C), on a new slice branch stacked on slice 2.
+T5: Stage A–F subagents and skills + end-to-end dry run, on a new slice branch stacked on slice 3.
