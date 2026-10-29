@@ -3,3 +3,4 @@ __pycache__/
 .codegraph/
 .DS_Store
 .atl/
+workspaces/

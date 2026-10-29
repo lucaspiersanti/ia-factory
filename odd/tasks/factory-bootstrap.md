@@ -34,7 +34,8 @@ No git remote yet: pushing and opening PRs are the user's decision.
 - [x] T2 `classify_risk.py` with TDD (Stage F). Route: inline (one hook + its test, design already fixed by ADR-003). Check: `python3 -m unittest discover -s .claude/hooks` → 13 tests OK. RED observed twice (missing module; non-normalized path bypass), then GREEN.
 - [x] T3 Trigger validation (Stage A) + correction-round counter (Stage E), with tests. Route: inline (two small hooks, design fixed by ADR-002). Check: `python3 -m unittest discover -s .claude/hooks` → 30 tests OK. RED observed (missing modules; unhashable list/dict values crashing `validate`), then GREEN.
 - [x] T4 Builder guards (Stage C): `guard_git.py` PreToolUse hook on Bash, registered in `.claude/settings.json`. Route: inline (one hook + test + settings). Check: `python3 -m unittest discover -s .claude/hooks` → 40 tests OK; RED observed (39 failing subtests); live check in Claude Code: `git push origin main` blocked by the hook.
-- [ ] T5 Stage A–F subagents and skills + end-to-end dry run with a sample trigger JSON.
+- [ ] T5 Stage A–F subagents and skills + end-to-end dry run with a sample trigger JSON. Target repos are cloned into `workspaces/` (ADR-004).
+- [ ] T6 GitHub branch protection on `main` (ia-factory repo, then every target repo): require PR, block force push and deletion. Blocked: ia-factory has no GitHub remote yet; creating it needs the user's choice of owner and visibility.
 
 ## Acceptance criteria
 - Every hook has a `unittest` file next to it and all tests pass.
