@@ -25,7 +25,9 @@ Development should not depend on a human as the bottleneck. The human approves e
 |---|---|---|---|---|
 | 1 | `feat/hooks-risk-classifier` | T1, T2 | bd29bf9, 01cf5fa | ~240 |
 | 2 | `feat/hooks-trigger-rounds` | T3 | a71df38 | ~283 |
-| 3 | `feat/hooks-builder-guard` | T4 | see Progress | ~250 |
+| 3 | `feat/hooks-builder-guard` | T4 | 459d1c2 | ~251 |
+| 4 | `feat/stage-f-merge-gate` | T5a (merge gate) | d04e963 | 425 (one cohesive unit, slightly over budget) |
+| 5 | `feat/target-repo-onboarding` | T5a (onboarding) | b08b4d9 | 269 |
 
 PRs opened 2026-10-29 at the user's request: slice 1 = #1 (base `main`), slice 2 = #2 (base slice 1), slice 3 = #3 (base slice 2). After a parent merges, retarget the child to `main`.
 
@@ -36,7 +38,8 @@ Known `guard_git` false positive: a Bash command that contains "git" plus a here
 - [x] T2 `classify_risk.py` with TDD (Stage F). Route: inline (one hook + its test, design already fixed by ADR-003). Check: `python3 -m unittest discover -s .claude/hooks` → 13 tests OK. RED observed twice (missing module; non-normalized path bypass), then GREEN.
 - [x] T3 Trigger validation (Stage A) + correction-round counter (Stage E), with tests. Route: inline (two small hooks, design fixed by ADR-002). Check: `python3 -m unittest discover -s .claude/hooks` → 30 tests OK. RED observed (missing modules; unhashable list/dict values crashing `validate`), then GREEN.
 - [x] T4 Builder guards (Stage C): `guard_git.py` PreToolUse hook on Bash, registered in `.claude/settings.json`. Route: inline (one hook + test + settings). Check: `python3 -m unittest discover -s .claude/hooks` → 40 tests OK; RED observed (39 failing subtests); live check in Claude Code: `git push origin main` blocked by the hook.
-- [ ] T5 Stage A–F subagents and skills + end-to-end dry run with a sample trigger JSON. Target repos are cloned into `workspaces/` (ADR-004).
+- [x] T5a `merge_gate.py` (Stage F, ADR-003/005) and `onboard_repo.py` (ADR-004, T6). Route: delegated writer (2+ non-trivial files, writer trigger). Risk assessed `high` with RDD off → independent verifier ran: FAIL with 6 findings (blocker: allowlist read from the local working tree let an uncommitted `risk.json` edit auto-merge `src/evil.py`; head race between classify and merge; fork repo mismatch; onboarding trusted any existing dir; `--delete-branch` split outcome; jq untested). One bounded correction round fixed all six test-first (RED: 22 failures + 1 error). Check: `python3 -m unittest discover -s .claude/hooks` → 65 OK (parent re-ran it). Split into slice 4 `feat/stage-f-merge-gate` (d04e963, 425 lines, 57 tests pass alone) and slice 5 `feat/target-repo-onboarding` (b08b4d9, 269 lines).
+- [ ] T5b (slice 6) Stage A–F subagents, `factory-run` orchestration skill, end-to-end dry run with a sample trigger JSON. Target repos are cloned into `workspaces/` (ADR-004). merge_gate contract: stdin `{"repo": "owner/name", "pr": int, "dry_run"?}`.
 - [x] T6 GitHub branch protection on `main` for ia-factory: public repo `lucaspiersanti/ia-factory` (user chose public: Free plan only protects public repos), default branch `main`, PR required with 0 approvals (a solo owner cannot approve their own PR; Stage F auto-merge goes through a PR), `enforce_admins` on, force push and deletion off. The user pushed `main` themselves because `guard_git` blocks the agent. Check: protection read back from the GitHub API. Every target repo must get the same protection when it is onboarded (part of T5).
 
 ## Acceptance criteria
